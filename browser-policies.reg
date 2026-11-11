@@ -1,0 +1,21 @@
+Windows Registry Editor Version 5.00
+
+; Define the vlc:// protocol scheme and point it to vlc-wrapper.ps1 via MSHTA
+[HKEY_CLASSES_ROOT\VLC]
+@="URL:VLC Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\VLC\shell]
+
+[HKEY_CLASSES_ROOT\VLC\shell\open]
+
+[HKEY_CLASSES_ROOT\VLC\shell\open\command]
+@="mshta.exe vbscript:Execute(\"CreateObject(\"\"WScript.Shell\"\").Run \"\"powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"\"\"\"C:\\Program Files\\VideoLAN\\VLC\\vlc-wrapper.ps1\"\"\"\" \"\"\"\"%1\"\"\"\"\"\", 0, False:close\")"
+
+; Apply policy for Google Chrome
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]
+"AutoLaunchProtocolsFromOrigins"="[{\"allowed_origins\":[\"https://stremio.com\",\"https://web.stremio.com\",\"https://strem.io\",\"https://app.strem.io\"],\"protocol\":\"vlc\"}]"
+
+; Apply policy for Microsoft Edge
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"AutoLaunchProtocolsFromOrigins"="[{\"allowed_origins\":[\"https://stremio.com\",\"https://web.stremio.com\",\"https://strem.io\",\"https://app.strem.io\"],\"protocol\":\"vlc\"}]"
