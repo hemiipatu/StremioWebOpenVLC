@@ -11,18 +11,13 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     exit 1
 }
 
-Write-Host "[+] Removing 'vlc://' protocol registry keys..." -ForegroundColor Cyan
+Write-Host "[+] Removing 'vlc://' protocol registry key..." -ForegroundColor Cyan
 
-$hkcrKeys = @(
-    "Registry::HKEY_CLASSES_ROOT\VLC",
-    "Registry::HKEY_CLASSES_ROOT\VLC.stremio"
-)
+$hkcrVlc = "Registry::HKEY_CLASSES_ROOT\VLC"
 
-foreach ($key in $hkcrKeys) {
-    if (Test-Path $key) {
-        Remove-Item -Path $key -Recurse -Force -ErrorAction SilentlyContinue
-        Write-Host "    Removed registry key: $key" -ForegroundColor Green
-    }
+if (Test-Path $hkcrVlc) {
+    Remove-Item -Path $hkcrVlc -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "    Removed registry key: $hkcrVlc" -ForegroundColor Green
 }
 
 Write-Host "[+] Cleaning up AutoLaunchProtocolsFromOrigins browser policies..." -ForegroundColor Cyan
