@@ -27,10 +27,50 @@ $browserPolicyKeys = @(
     "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
 )
 
+$stremioOrigins = @(
+    "https://web.stremio.com",
+    "https://stremio.com",
+    "https://strem.io",
+    "https://app.strem.io"
+)
+
 foreach ($keyPath in $browserPolicyKeys) {
     if (Test-Path $keyPath) {
-        Remove-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -ErrorAction SilentlyContinue
-        Write-Host "    Removed AutoLaunchProtocolsFromOrigins from: $keyPath" -ForegroundColor Green
+        $existingPolicy = Get-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -ErrorAction SilentlyContinue
+
+        if ($null -ne $existingPolicy -and $null -ne $existingPolicy.AutoLaunchProtocolsFromOrigins) {
+            try {
+                $policyEntries = @($existingPolicy.AutoLaunchProtocolsFromOrigins | ConvertFrom-Json)
+            } catch {
+                Write-Error "Existing AutoLaunchProtocolsFromOrigins policy at $keyPath is invalid JSON. Cleanup of this policy was skipped."
+                continue
+            }
+
+            $cleanedEntries = @()
+            foreach ($entry in $policyEntries) {
+                if ($entry.protocol -eq "vlc") {
+                    $remainingOrigins = @(
+                        @($entry.allowed_origins) | Where-Object { $stremioOrigins -notcontains $_ }
+                    )
+
+                    if ($remainingOrigins.Count -gt 0) {
+                        $entry.allowed_origins = $remainingOrigins
+                        $cleanedEntries += $entry
+                    }
+                } else {
+                    $cleanedEntries += $entry
+                }
+            }
+
+            if ($cleanedEntries.Count -eq 0) {
+                Remove-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -ErrorAction SilentlyContinue
+            } else {
+                $policyJson = $cleanedEntries | ConvertTo-Json -Compress -Depth 4
+                Set-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -Value $policyJson
+            }
+
+            Write-Host "    Removed this project's VLC origins from: $keyPath" -ForegroundColor Green
+        }
     }
 }
 

@@ -82,10 +82,51 @@ $browserPolicyKeys = @(
     "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
 )
 
+$stremioOrigins = @(
+    "https://web.stremio.com",
+    "https://stremio.com",
+    "https://strem.io",
+    "https://app.strem.io"
+)
+
 foreach ($keyPath in $browserPolicyKeys) {
     if (-not (Test-Path $keyPath)) {
         New-Item -Path $keyPath -Force | Out-Null
     }
+
+    $policyEntries = @()
+    $existingPolicy = Get-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -ErrorAction SilentlyContinue
+
+    if ($null -ne $existingPolicy -and $null -ne $existingPolicy.AutoLaunchProtocolsFromOrigins) {
+        try {
+            $existingEntries = $existingPolicy.AutoLaunchProtocolsFromOrigins | ConvertFrom-Json
+            if ($null -ne $existingEntries) {
+                $policyEntries = @($existingEntries)
+            }
+        } catch {
+            Write-Error "Existing AutoLaunchProtocolsFromOrigins policy at $keyPath is invalid JSON. Installation stopped to avoid overwriting it."
+            exit 1
+        }
+    }
+
+    $vlcEntry = $policyEntries | Where-Object { $_.protocol -eq "vlc" } | Select-Object -First 1
+
+    if ($null -ne $vlcEntry) {
+        $allowedOrigins = @($vlcEntry.allowed_origins)
+        foreach ($origin in $stremioOrigins) {
+            if ($allowedOrigins -notcontains $origin) {
+                $allowedOrigins += $origin
+            }
+        }
+        $vlcEntry.allowed_origins = @($allowedOrigins)
+    } else {
+        $policyEntries += [PSCustomObject]@{
+            allowed_origins = $stremioOrigins
+            protocol = "vlc"
+        }
+    }
+
+    $policyJson = $policyEntries | ConvertTo-Json -Compress -Depth 4
     Set-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -Value $policyJson
     Write-Host "    Updated policy at: $keyPath" -ForegroundColor Green
 }
