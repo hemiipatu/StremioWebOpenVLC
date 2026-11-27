@@ -82,8 +82,9 @@ VLC Media Player opens with the stream
 ```text
 StremioWebOpenVLC/
 ├── browser-policies.reg
+├── docs/
+│   └── INSTALLATION_GUIDE.md
 ├── install.ps1
-├── INSTALLATION_GUIDE.md
 ├── LICENSE
 ├── README.md
 ├── uninstall.ps1
@@ -218,7 +219,7 @@ Chrome and Edge receive an `AutoLaunchProtocolsFromOrigins` policy containing th
 | [`uninstall.ps1`](./uninstall.ps1) | Removes the protocol registration, policy values, and wrappers in standard VLC directories. |
 | [`vlc-wrapper.ps1`](./vlc-wrapper.ps1) | Cleans the incoming protocol URL and launches VLC. |
 | [`browser-policies.reg`](./browser-policies.reg) | Optional registry file for manual protocol and browser policy setup. |
-| [`INSTALLATION_GUIDE.md`](./INSTALLATION_GUIDE.md) | Detailed installation, verification, configuration, and troubleshooting guide. |
+| [`docs/INSTALLATION_GUIDE.md`](./docs/INSTALLATION_GUIDE.md) | Detailed installation, verification, configuration, and troubleshooting guide. |
 | [`LICENSE`](./LICENSE) | GNU General Public License, version 3. |
 | [`README.md`](./README.md) | Project overview and quick reference. |
 
