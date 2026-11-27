@@ -126,7 +126,8 @@ foreach ($keyPath in $browserPolicyKeys) {
         }
     }
 
-    $policyJson = $policyEntries | ConvertTo-Json -Compress -Depth 4
+    # -InputObject keeps a single entry as a JSON array, which the browsers require
+    $policyJson = ConvertTo-Json -InputObject @($policyEntries) -Compress -Depth 4
     Set-ItemProperty -Path $keyPath -Name "AutoLaunchProtocolsFromOrigins" -Value $policyJson
     Write-Host "    Updated policy at: $keyPath" -ForegroundColor Green
 }
