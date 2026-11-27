@@ -9,6 +9,6 @@ if ($rawUrl) {
     $vlcPath = "C:\Program Files\VideoLAN\VLC\vlc.exe"
     
     if (Test-Path $vlcPath) {
-        Start-Process -FilePath $vlcPath -ArgumentList "`"$cleanUrl`""
+        Start-Process -FilePath $vlcPath -ArgumentList "`"$cleanUrl`"" -WindowStyle Normal
     }
 }

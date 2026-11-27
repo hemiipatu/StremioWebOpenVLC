@@ -46,7 +46,7 @@ if (`$rawUrl) {
 
     `$vlcPath = "$vlcExe"
     if (Test-Path `$vlcPath) {
-        Start-Process -FilePath `$vlcPath -ArgumentList "`"`$cleanUrl`""
+        Start-Process -FilePath `$vlcPath -ArgumentList "`"`$cleanUrl`"" -WindowStyle Normal
     }
 }
 "@
