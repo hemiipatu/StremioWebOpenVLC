@@ -70,7 +70,7 @@ Browser Policy (AutoLaunchProtocolsFromOrigins)
         ↓
 Windows Registry (HKEY_CLASSES_ROOT\VLC)
         ↓
-MSHTA.exe executes vlc-wrapper.ps1
+conhost.exe --headless runs vlc-wrapper.ps1 (no window)
         ↓
 vlc-wrapper.ps1 cleans the URL
         ↓
@@ -148,7 +148,7 @@ The installer creates the following protocol registration:
 HKEY_CLASSES_ROOT\VLC
   (Default)               = "URL:VLC Protocol"
   URL Protocol            = "" (empty string)
-  shell\open\command      = MSHTA invocation of vlc-wrapper.ps1
+  shell\open\command      = conhost.exe --headless invocation of vlc-wrapper.ps1
 ```
 
 Chrome and Edge receive an `AutoLaunchProtocolsFromOrigins` policy containing the allowed origins and the `vlc` protocol. The matching registry paths are:

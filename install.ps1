@@ -64,11 +64,11 @@ New-Item -Path $hkcrVlc -Force | Out-Null
 Set-ItemProperty -Path $hkcrVlc -Name "(default)" -Value "URL:VLC Protocol"
 Set-ItemProperty -Path $hkcrVlc -Name "URL Protocol" -Value ""
 
-# Prepare MSHTA invocation string for silent execution
-$mshtaCmd = 'mshta.exe vbscript:Execute("CreateObject(""WScript.Shell"").Run ""powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """"{0}"""" """"%1"""""", 0, False:close")' -f $wrapperPath
+# Headless conhost runs PowerShell with no visible window
+$launchCmd = 'conhost.exe --headless powershell.exe -NoProfile -ExecutionPolicy Bypass -File "{0}" "%1"' -f $wrapperPath
 
 New-Item -Path $hkcrCommand -Force | Out-Null
-Set-ItemProperty -Path $hkcrCommand -Name "(default)" -Value $mshtaCmd
+Set-ItemProperty -Path $hkcrCommand -Name "(default)" -Value $launchCmd
 
 Write-Host "    vlc:// protocol registered successfully." -ForegroundColor Green
 
