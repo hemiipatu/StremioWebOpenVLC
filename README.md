@@ -81,6 +81,9 @@ VLC Media Player opens with the stream
 
 ```text
 StremioWebOpenVLC/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── browser-policies.reg
 ├── docs/
 │   └── INSTALLATION_GUIDE.md
@@ -211,10 +214,15 @@ Chrome and Edge receive an `AutoLaunchProtocolsFromOrigins` policy containing th
 - **Browser origins:** The configured browser policy allows listed Stremio origins to auto-launch the `vlc` protocol. Add only origins you trust.
 - **URL handling:** The wrapper removes the `vlc://` prefix and repairs a couple of URL schemes; it does not validate or sanitize URLs.
 
+## ✅ Continuous Integration
+
+The [PowerShell CI workflow](./.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatches using a Windows runner. It checks PowerShell syntax and runs PSScriptAnalyzer for error-severity findings. It does not run the installer or uninstaller or test VLC integration.
+
 ## 📚 File Reference
 
 | File | Purpose |
 | --- | --- |
+| [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | GitHub Actions workflow for PowerShell syntax and static analysis. |
 | [`install.ps1`](./install.ps1) | Registers the protocol, deploys the wrapper, and configures Chrome and Edge policies. |
 | [`uninstall.ps1`](./uninstall.ps1) | Removes the protocol registration, policy values, and wrappers in standard VLC directories. |
 | [`vlc-wrapper.ps1`](./vlc-wrapper.ps1) | Cleans the incoming protocol URL and launches VLC. |
