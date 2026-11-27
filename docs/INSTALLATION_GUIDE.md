@@ -34,7 +34,9 @@ This installation will:
 - ✅ Deploy a wrapper script to your VLC installation folder
 - ✅ Configure browser policies for Chrome and/or Edge
 - ✅ **NOT** modify VLC itself or browser data
-- ✅ **NOT** require internet access
+- ✅ **NOT** require internet access during installation once the repository and VLC are available locally
+
+The installation replaces any existing `vlc://` protocol registration. Back up that registration first if you need to restore it later.
 
 ---
 
@@ -83,12 +85,10 @@ cd StremioWebOpenVLC
 
 In PowerShell, verify you're running as Administrator:
 ```powershell
-whoami
+([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 ```
 
-You should see output like: `DOMAIN\USERNAME`
-
-If you see an error or the prompt says "PowerShell", restart using the methods above.
+The result should be `True`. If it is `False`, restart PowerShell as Administrator using one of the methods above.
 
 #### Step 4: Run the Installation Script
 
@@ -100,7 +100,7 @@ If you see an error or the prompt says "PowerShell", restart using the methods a
 ```
 [+] Locating VLC Media Player...
     Found VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
-[+] Deploying vlc-wrapper.ps1 to C:\Program Files\VideoLAN\VLC...
+[+] Deploying vlc-wrapper.ps1 to C:\Program Files\VideoLAN\VLC\vlc-wrapper.ps1...
     vlc-wrapper.ps1 created successfully.
 [+] Registering 'vlc://' custom URL protocol...
     vlc:// protocol registered successfully.
@@ -143,7 +143,9 @@ This ensures the browser recognizes the new protocol handler immediately.
 
 ## 🛠️ Manual Installation (Registry File)
 
-Use this method if you prefer not to run PowerShell scripts.
+Use this method to configure the registry manually. The protocol handler still runs the PowerShell wrapper when a VLC link is opened.
+
+Importing `browser-policies.reg` replaces the existing `AutoLaunchProtocolsFromOrigins` values for Chrome and Edge. If these values already contain policies you need, use the automated installer instead; it merges the Stremio origins into existing valid JSON.
 
 ### Step 1: Edit the Registry File
 
@@ -152,7 +154,7 @@ Use this method if you prefer not to run PowerShell scripts.
    ```
    @="mshta.exe vbscript:Execute(\"CreateObject...C:\\Program Files\\VideoLAN\\VLC\\vlc-wrapper.ps1
    ```
-3. If your VLC is in a different location, update the path
+3. If your VLC is in a different location, update the wrapper path, retaining the doubled backslashes used in the registry file.
 
 ### Step 2: Import the Registry File
 
@@ -192,7 +194,9 @@ This must be done manually:
 
 2. Copy `vlc-wrapper.ps1` to that VLC folder
 
-3. Verify the wrapper path matches what you set in `browser-policies.reg`
+3. Verify the wrapper path matches what you set in `browser-policies.reg`.
+
+4. Open the copied wrapper in a text editor. If VLC is not at `C:\Program Files\VideoLAN\VLC\vlc.exe`, update `$vlcPath` to the actual path to `vlc.exe` and save the file.
 
 ### Step 4: Reload Browser Policies
 
@@ -214,7 +218,7 @@ After installation, verify everything is working correctly.
      - (Default) = `URL:VLC Protocol`
      - URL Protocol = `(empty string)`
    - **VLC\shell\open\command**
-     - (Default) = `mshta.exe vbscript:Execute...`
+     - (Default) starts with `conhost.exe --headless powershell.exe` after automated installation, or `mshta.exe vbscript:Execute...` after importing the supplied registry file
 
 ### Check 2: Wrapper Script Location
 
@@ -239,10 +243,11 @@ After installation, verify everything is working correctly.
 
 ### Check 4: Protocol Handler Test
 
-1. Open any application that can handle URLs (Notepad, Word, etc.)
-2. Type: `vlc://https://example.com/stream.m3u8`
-3. Click on it or paste it in your browser address bar
-4. **Expected:** VLC opens (with or without the stream, depending on the URL)
+1. In PowerShell, run:
+   ```powershell
+   Start-Process 'vlc://https://example.com/stream.m3u8'
+   ```
+2. **Expected:** Windows launches VLC. The example URL is a placeholder, so the stream itself is not expected to play.
 
 ### Check 5: Live Test with Stremio
 
@@ -259,14 +264,14 @@ After installation, verify everything is working correctly.
 
 To allow additional domains to auto-launch VLC:
 
-#### Via PowerShell (Manual Edit):
+#### Via Registry Editor
 
 1. Open Registry Editor (`regedit`)
 2. Navigate to:
-   - `HKLM:\SOFTWARE\Policies\Google\Chrome`
-   - `HKLM:\SOFTWARE\Policies\Microsoft\Edge`
+   - `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome`
+   - `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`
 3. Right-click `AutoLaunchProtocolsFromOrigins` → **Edit**
-4. Find the JSON value and add your domain:
+4. Find the `vlc` entry in the existing JSON value and add your domain to its `allowed_origins` array. Preserve any other protocol entries. For example, a value containing only the VLC entry could look like:
    ```json
    [{"allowed_origins":["https://stremio.com","https://web.stremio.com","https://strem.io","https://app.strem.io","https://yourcustom.domain"],"protocol":"vlc"}]
    ```
@@ -275,7 +280,7 @@ To allow additional domains to auto-launch VLC:
 
 ### Modifying the Wrapper Script
 
-Advanced users can customize URL processing in `vlc-wrapper.ps1`:
+Advanced users can customize URL processing in the deployed `vlc-wrapper.ps1` in the VLC installation folder:
 
 ```powershell
 param([string]$rawUrl)
@@ -284,6 +289,7 @@ if ($rawUrl) {
     # Custom URL processing here
     $cleanUrl = $rawUrl -replace '^vlc://', ''
     $cleanUrl = $cleanUrl -replace '^https//', 'https://'
+    $cleanUrl = $cleanUrl -replace '^http//', 'http://'
     
     # Your custom logic:
     $cleanUrl = $cleanUrl -replace 'oldvalue', 'newvalue'
@@ -295,7 +301,9 @@ if ($rawUrl) {
 }
 ```
 
-After editing, re-run `install.ps1` to redeploy the changes.
+In the example, replace `$vlcPath` with the actual path to `vlc.exe` if it differs.
+
+The automated installer generates its own wrapper instead of copying the repository's `vlc-wrapper.ps1`. Re-running `install.ps1` overwrites changes to the deployed wrapper; back up and reapply them after reinstalling.
 
 ---
 
@@ -313,8 +321,8 @@ After editing, re-run `install.ps1` to redeploy the changes.
 5. Run `.\install.ps1` again
 
 **Still getting error?**
-- Check: Settings → Update & Security → For developers → **Enable Developer Mode**
-- Or use Command Prompt (Admin) instead:
+- Verify elevation as described in [Step 3](#step-3-verify-administrator-status).
+- Or open Command Prompt as Administrator, navigate to the repository, and run:
   ```cmd
   powershell -ExecutionPolicy Bypass -File install.ps1
   ```
@@ -353,9 +361,7 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
 4. Save and run `install.ps1` again
 
 **Option C - Manual Installation:**
-1. Copy the wrapper manually to your VLC directory
-2. Import `browser-policies.reg`
-3. Edit the registry to point to your VLC location
+Follow [Manual Installation](#manual-installation-registry-file), updating both the registry file's wrapper path and the copied wrapper's `$vlcPath`.
 
 ---
 
@@ -387,16 +393,15 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
    ```
    If empty or not found, re-run `install.ps1`
 
-5. **Verify browser supports the policy:**
-   - Minimum Chrome version: 53
-   - Minimum Edge version: 79
-   - Run: `chrome://version` or `edge://version` to check your version
+5. **Verify browser support:**
+   - Check the installed version at `chrome://version` or `edge://version`.
+   - Consult the browser's policy documentation; Edge supports this policy on Windows starting with version 85.
 
 ---
 
 ### Issue 4: VLC opens but without the stream URL
 
-**Cause:** URL formatting issue or VLC path hardcoded incorrectly
+**Cause:** URL formatting or stream access issue
 
 **Solutions:**
 
@@ -407,25 +412,12 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
    ```
    Verify the `$vlcPath` points to your actual VLC executable
 
-2. **Re-run installation:**
+2. **Re-run installation as Administrator:**
    ```powershell
-   .\uninstall.ps1
    .\install.ps1
    ```
 
-3. **Enable debug logging:**
-   Modify `vlc-wrapper.ps1` to add logging:
-   ```powershell
-   param([string]$rawUrl)
-   
-   "Raw URL: $rawUrl" | Out-File -Path "C:\temp\vlc-debug.log" -Append
-   
-   if ($rawUrl) {
-       $cleanUrl = $rawUrl -replace '^vlc://', ''
-       "Clean URL: $cleanUrl" | Out-File -Path "C:\temp\vlc-debug.log" -Append
-       ...
-   }
-   ```
+3. **Check the stream URL:** Confirm that the stream is accessible in VLC. Avoid sharing private stream URLs or tokens when reporting an issue.
 
 ---
 
@@ -448,7 +440,7 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
    Sometimes a full restart is needed for registry changes to take effect
 
 4. **Check browser version:**
-   - Policy support requires Chrome 53+ or Edge 79+
+   - Edge supports this policy on Windows starting with version 85; check Chrome's policy documentation for its supported versions.
    - Update your browser if outdated
 
 5. **Verify policy manually:**
@@ -468,17 +460,9 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
 
 1. **Run PowerShell as Administrator** (see Issue 1)
 
-2. **Take ownership of VLC folder:**
-   ```cmd
-   # Command Prompt (Admin)
-   takeown /f "C:\Program Files\VideoLAN\VLC" /r
-   icacls "C:\Program Files\VideoLAN\VLC" /grant "%USERNAME%":F /t
-   ```
+2. **Check folder permissions or security software:** If the folder is managed by your organization, contact your administrator rather than changing its ownership or permissions.
 
-3. **Move VLC to a different location:**
-   - Uninstall VLC
-   - Reinstall to a user-writable location
-   - Re-run `install.ps1`
+3. **Use a custom VLC location:** If VLC is installed elsewhere, add its executable path to `install.ps1` as described in Issue 2, then run the installer as Administrator.
 
 ---
 
@@ -490,14 +474,13 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
 
 1. **Verify the file:**
    ```powershell
-   file "browser-policies.reg"
-   Get-Content "browser-policies.reg" | head -5
+   Get-Content "browser-policies.reg" -TotalCount 5
    ```
 
 2. **Edit paths in the registry file:**
    - Open `browser-policies.reg` with Notepad
    - Check all file paths are correct (especially backslashes)
-   - Save as **ANSI** encoding, not UTF-8
+   - Save the file in a Registry Editor-compatible encoding, such as UTF-16 LE
 
 3. **Use PowerShell instead:**
    ```powershell
@@ -508,7 +491,7 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
 
 ## 🗑️ Uninstallation
 
-To completely remove the VLC protocol handler and restore your system:
+To remove the VLC protocol handler and this project's browser-policy origins:
 
 ### Automated Uninstallation (Recommended)
 
@@ -527,12 +510,14 @@ To completely remove the VLC protocol handler and restore your system:
 [+] Removing 'vlc://' protocol registry key...
     Removed registry key: Registry::HKEY_CLASSES_ROOT\VLC
 [+] Cleaning up AutoLaunchProtocolsFromOrigins browser policies...
-    Removed AutoLaunchProtocolsFromOrigins from: HKLM:\SOFTWARE\Policies\Google\Chrome
-    Removed AutoLaunchProtocolsFromOrigins from: HKLM:\SOFTWARE\Policies\Microsoft\Edge
+    Removed this project's VLC origins from: HKLM:\SOFTWARE\Policies\Google\Chrome
+    Removed this project's VLC origins from: HKLM:\SOFTWARE\Policies\Microsoft\Edge
 [+] Deleting vlc-wrapper.ps1 script...
     Deleted file: C:\Program Files\VideoLAN\VLC\vlc-wrapper.ps1
 [SUCCESS] Cleanup complete! Custom VLC protocol and policy configurations have been removed.
 ```
+
+The messages depend on what is installed. The uninstaller removes the four configured Stremio origins from VLC policy entries and attempts to preserve other entries and origins. Check the browser policies after uninstalling. It deletes wrappers only from the standard VLC directories; if you used a custom VLC directory, remove its deployed wrapper manually. Pre-existing matching Stremio origins are also removed; restore them manually if needed.
 
 ### Manual Uninstallation
 
@@ -549,10 +534,8 @@ If you prefer to clean up manually:
    - Click **Yes**
 
 3. **Remove browser policies:**
-   - Navigate to: `HKLM:\SOFTWARE\Policies\Google\Chrome`
-   - Right-click `AutoLaunchProtocolsFromOrigins` → **Delete**
-   - Navigate to: `HKLM:\SOFTWARE\Policies\Microsoft\Edge`
-   - Right-click `AutoLaunchProtocolsFromOrigins` → **Delete**
+   - Navigate to `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome` and `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge`.
+   - In each `AutoLaunchProtocolsFromOrigins` value, remove this project's Stremio origins from the `vlc` entries while preserving other origins and protocols. Remove an empty `vlc` entry; delete the value only if no entries remain.
 
 4. **Reload browser policies:**
    - Chrome: `chrome://policy` → **Reload policies**
@@ -583,8 +566,8 @@ If you encounter issues not covered here:
 
 - [Stremio Official Website](https://www.stremio.com/)
 - [VLC Media Player](https://www.videolan.org/vlc/)
-- [Chrome Auto-Launch Protocol Policy](https://chromedriver.chromium.org/security-considerations)
-- [Edge Policy Reference](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies)
+- [Chrome Auto-Launch Protocol Policy](https://chromeenterprise.google/policies/#AutoLaunchProtocolsFromOrigins)
+- [Edge Auto-Launch Protocol Policy](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies/autolaunchprotocolsfromorigins)
 
 ---
 
