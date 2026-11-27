@@ -1,0 +1,94 @@
+name: 📝 Issue or suggestion
+description: Report a problem or suggest an improvement.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve this project. Please search existing issues before submitting.
+        Do not include passwords, tokens, private URLs, or other sensitive information.
+        For suspected vulnerabilities, check the project's security policy or contact the maintainers privately instead of opening a public issue.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: ✅ Before submitting
+      options:
+        - label: I have searched the existing issues for a similar report.
+          required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: 🏷️ Issue type
+      options:
+        - Bug report
+        - Feature request
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📋 Description
+      description: Describe the problem or suggestion and why it matters.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔁 Steps to reproduce
+      description: For a problem, provide the steps needed to reproduce it.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 💡 Expected behavior or proposed solution
+      description: Describe what you expected to happen or how you suggest improving the project.
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 🔍 Actual behavior
+      description: For a problem, describe what happened instead.
+
+  - type: textarea
+    id: regression
+    attributes:
+      label: 🕰️ Previously working
+      description: If applicable, did this work before? Include the last known working version, if known.
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: 📊 Frequency
+      description: If applicable, how often does the problem occur?
+      options:
+        - Every time
+        - Intermittently
+        - Once
+        - Unknown
+
+  - type: textarea
+    id: troubleshooting
+    attributes:
+      label: 🛠️ Troubleshooting attempted
+      description: Describe any steps you have already tried and their results.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 💻 Environment
+      description: If applicable, include the project version, operating system, and relevant tools and their versions.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📎 Additional context
+      description: Add relevant error messages, logs, screenshots, or links. Remove sensitive information first.

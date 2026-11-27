@@ -222,6 +222,7 @@ The [PowerShell CI workflow](./.github/workflows/ci.yml) runs on pushes, pull re
 
 | File | Purpose |
 | --- | --- |
+| [`.github/ISSUE_TEMPLATE/issue.yml`](./.github/ISSUE_TEMPLATE/issue.yml) | Reusable form for reporting issues and suggesting improvements. |
 | [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | GitHub Actions workflow for PowerShell syntax and static analysis. |
 | [`install.ps1`](./install.ps1) | Registers the protocol, deploys the wrapper, and configures Chrome and Edge policies. |
 | [`uninstall.ps1`](./uninstall.ps1) | Removes the protocol registration, policy values, and wrappers in standard VLC directories. |
@@ -240,7 +241,7 @@ This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**
 To report issues or suggest improvements:
 
 1. **Check existing issues:** [https://github.com/hemiipatu/StremioWebOpenVLC/issues](https://github.com/hemiipatu/StremioWebOpenVLC/issues)
-2. **Submit a new issue:** [https://github.com/hemiipatu/StremioWebOpenVLC/issues/new](https://github.com/hemiipatu/StremioWebOpenVLC/issues/new)
+2. **Submit a new issue:** [https://github.com/hemiipatu/StremioWebOpenVLC/issues/new/choose](https://github.com/hemiipatu/StremioWebOpenVLC/issues/new/choose)
 3. **Provide details:**
    - Windows edition and version
    - VLC version and installation path
@@ -248,6 +249,8 @@ To report issues or suggest improvements:
    - Script used (`install.ps1`, `uninstall.ps1`, or `vlc-wrapper.ps1`)
    - Error message or unexpected behavior
    - Steps to reproduce
+
+To reuse the issue form in another repository, copy [`.github/ISSUE_TEMPLATE/issue.yml`](./.github/ISSUE_TEMPLATE/issue.yml) to the same location there.
 
 ## 🔗 Related Resources
 
