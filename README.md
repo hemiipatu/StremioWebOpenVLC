@@ -222,6 +222,7 @@ The [PowerShell CI workflow](./.github/workflows/ci.yml) runs on pushes, pull re
 
 | File | Purpose |
 | --- | --- |
+| [`.github/ISSUE_TEMPLATE/config.yml`](./.github/ISSUE_TEMPLATE/config.yml) | Disables blank issues in the GitHub issue chooser. |
 | [`.github/ISSUE_TEMPLATE/issue.yml`](./.github/ISSUE_TEMPLATE/issue.yml) | Reusable form for reporting issues and suggesting improvements. |
 | [`.github/workflows/ci.yml`](./.github/workflows/ci.yml) | GitHub Actions workflow for PowerShell syntax and static analysis. |
 | [`install.ps1`](./install.ps1) | Registers the protocol, deploys the wrapper, and configures Chrome and Edge policies. |
