@@ -75,8 +75,6 @@ Write-Host "    vlc:// protocol registered successfully." -ForegroundColor Green
 # Apply AutoLaunchProtocolsFromOrigins policy for Chrome and Edge
 Write-Host "[+] Configuring browser auto-launch policies..." -ForegroundColor Cyan
 
-$policyJson = '[{"allowed_origins":["https://web.stremio.com","https://stremio.com","https://strem.io","https://app.strem.io"],"protocol":"vlc"}]'
-
 $browserPolicyKeys = @(
     "HKLM:\SOFTWARE\Policies\Google\Chrome",
     "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
