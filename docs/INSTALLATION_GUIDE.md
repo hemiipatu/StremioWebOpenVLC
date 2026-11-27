@@ -1,20 +1,22 @@
-# Installation Guide - StremioWebOpenVLC
+# 📘 Installation Guide - StremioWebOpenVLC
 
 A step-by-step guide to install, verify, and troubleshoot the Stremio VLC protocol handler.
 
-## Table of Contents
+## 📋 Table of Contents
 
-1. [Before You Start](#before-you-start)
+1. [Requirements](#requirements)
 2. [Automated Installation](#automated-installation)
 3. [Manual Installation (Registry File)](#manual-installation-registry-file)
 4. [Verification Steps](#verification-steps)
 5. [Advanced Configuration](#advanced-configuration)
 6. [Troubleshooting](#troubleshooting)
 7. [Uninstallation](#uninstallation)
+8. [Security Notes](#security-notes)
+9. [Support and Related Resources](#support-and-related-resources)
 
 ---
 
-## Before You Start
+## ⚙️ Requirements
 
 ### Prerequisites Checklist
 
@@ -36,7 +38,7 @@ This installation will:
 
 ---
 
-## Automated Installation
+## 🚀 Automated Installation
 
 ### Method 1: PowerShell Installation (Recommended)
 
@@ -139,7 +141,7 @@ This ensures the browser recognizes the new protocol handler immediately.
 
 ---
 
-## Manual Installation (Registry File)
+## 🛠️ Manual Installation (Registry File)
 
 Use this method if you prefer not to run PowerShell scripts.
 
@@ -198,7 +200,7 @@ Follow the same steps as Method 1, Step 5 above.
 
 ---
 
-## Verification Steps
+## ✅ Verification Steps
 
 After installation, verify everything is working correctly.
 
@@ -251,7 +253,7 @@ After installation, verify everything is working correctly.
 
 ---
 
-## Advanced Configuration
+## ⚙️ Advanced Configuration
 
 ### Adding Custom Domains
 
@@ -297,7 +299,7 @@ After editing, re-run `install.ps1` to redeploy the changes.
 
 ---
 
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### Issue 1: "This script must be run as Administrator"
 
@@ -504,7 +506,7 @@ Get-ChildItem -Path "C:\" -Recurse -Filter "vlc.exe" -ErrorAction SilentlyContin
 
 ---
 
-## Uninstallation
+## 🗑️ Uninstallation
 
 To completely remove the VLC protocol handler and restore your system:
 
@@ -558,7 +560,15 @@ If you prefer to clean up manually:
 
 ---
 
-## Support
+## 🔒 Security Notes
+
+- **Administrator access:** Installation modifies Windows registry entries and writes the wrapper script to the VLC installation directory.
+- **Browser origins:** The browser policy allows the listed Stremio origins to launch the `vlc` protocol. Add only origins you trust.
+- **Review before running:** Read the installation scripts and registry file before applying them, especially if you obtained the repository from an untrusted source.
+
+---
+
+## 📚 Support and Related Resources
 
 If you encounter issues not covered here:
 
@@ -570,6 +580,11 @@ If you encounter issues not covered here:
    - Browser and version
    - Full error message output
    - Steps to reproduce the issue
+
+- [Stremio Official Website](https://www.stremio.com/)
+- [VLC Media Player](https://www.videolan.org/vlc/)
+- [Chrome Auto-Launch Protocol Policy](https://chromedriver.chromium.org/security-considerations)
+- [Edge Policy Reference](https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies)
 
 ---
 
